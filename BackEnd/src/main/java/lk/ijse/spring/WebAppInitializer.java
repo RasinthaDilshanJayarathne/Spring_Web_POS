@@ -1,4 +1,4 @@
-package lk.ijse.spring.util;
+package lk.ijse.spring;
 
 import lk.ijse.spring.config.WebAppConfig;
 import lk.ijse.spring.config.WebRootConfig;
