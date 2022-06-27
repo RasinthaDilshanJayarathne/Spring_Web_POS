@@ -1,6 +1,9 @@
 $("#item").click(function (){
-    loadAllItem();
+    loadAllItems();
 })
+
+var baseUrl="http://localhost:8080/BackEnd_war/item/"
+
 
 function genarateItemCode(){
     $("#txtPopItemCode").val("I00-001");
@@ -16,32 +19,198 @@ function genarateItemCode(){
     }
 }
 
-$("#popItemBtnAdd").click(function () {
+//Events
+//Search Customer Event
+$("#btnItemSearch").click(function () {
+    searchItem();
+});
 
-    var cusOb={
+//Save Customer Event
+$("#popItemBtnAdd").click(function () {
+    saveItem();
+});
+
+//Delete Customer Event
+$("#btnItemDelete").click(function () {
+    deleteItem();
+});
+
+//Update Customer Event
+$("#btnItemUpdate").click(function () {
+    updateItem();
+});
+
+//Bind click events to the table rows
+function bindClickEvents() {
+    $("#itemTable>tr").click(function () {
+        //Get values from the selected row
+        let code = $(this).children().eq(0).text();
+        let name = $(this).children().eq(1).text();
+        let qTYOnHand = $(this).children().eq(2).text();
+        let itemPrice = $(this).children().eq(3).text();
+
+        //Set values to the text-fields
+        $("#txtItemCode").val(code);
+        $("#txtItemName").val(name);
+        $("#txtItemQTYOnHand").val(qTYOnHand);
+        $("#txtItemPrice").val(itemPrice);
+    });
+}
+
+//Save Item
+function saveItem() {
+    var data = $("#itemForm").serialize(); // return query string of form with name:type-value
+    $.ajax({
+        url: baseUrl,
+        method: "POST",
+        data: data,// if we send data with the request
+        success: function (res) {
+            if (res.code == 200) {
+                alert("Successfully Item Registered");
+                loadAllItems();
+                clearPopData();
+            }
+            /*else {
+                alert(res.message);
+            }*/
+        },
+        error: function (ob) {
+            alert(ob.responseJSON.message);
+        }
+    });
+}
+
+//Load All Customers
+function loadAllItems() {
+    $("#itemTable").empty();
+    $.ajax({
+        url: baseUrl,
+        method: "GET",
+        // dataType:"json", // please convert the response into JSON
+        success: function (resp) {
+
+            for (const item of resp.data) {
+                var row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.price}</td><td>${item.qtyOnHand}</td></tr>`;
+                $("#customerTable").append(row);
+            }
+            bindClickEvents();
+            clearForm();
+        },
+        error: function (ob) {
+            alert(ob.responseJSON.message);
+        }
+    });
+
+}
+
+//Update Item
+function updateItem() {
+    //creating a js object with relevant data which you wanna send to the server
+    var itmOb = {
+        id: $("#txtItemCode").val(),
+        name: $("#txtItemName").val(),
+        address: $("#txtItemQTYOnHand").val(),
+        contact: $("#txtItemPrice").val(),
+    }
+
+    $.ajax({
+        url: baseUrl,
+        method: "PUT",
+        contentType: "application/json", //You should state request's content type using MIME types
+        data: JSON.stringify(itmOb), // format js object to valid json string
+        success: function (res) {
+            if (res.code == 200) { // process is  ok
+                alert("Successfully Updated");
+                loadAllCustomers();
+                clearForm();
+            }
+        },
+        error: function (ob) {
+            alert(ob.responseJSON.message);
+        }
+    });
+}
+
+//Delete Item
+function deleteItem() {
+    // Get the item id
+    let itemCode = $("#txtItemCode").val();
+
+    // initiate the request
+    $.ajax({
+        url: baseUrl + "?code=" + itemCode,// viya query string
+        method: "DELETE",
+        //data:data,// application/x-www-form-urlencoded
+        success: function (res) {
+            if (res.code == 200) {
+                alert("Customer Successfully Deleted");
+                loadAllCustomers();
+                clearForm();
+            }
+        },
+        error: function (ob) {
+            alert(ob.responseJSON.message);
+        }
+    });
+}
+
+//Search Item
+function searchItem() {
+    var search = $("#searchBar3").val();
+    $("#itemTable").empty();
+
+    $.ajax({
+        url:baseUrl + "/" + search,
+        method:"GET",
+        success: function (resp) {
+            var data=resp.data;
+            console.log(data.id);
+            var row = `<tr><td>${data.code}</td><td>${data.name}</td><td>${data.price}</td><td>${data.qtyOnHand}</td></tr>`;
+            $("#customerTable").append(row);
+
+            bindClickEvents();
+        }
+    })
+}
+
+//Clear Item Input Fields
+function clearForm() {
+    $("#txtItemCode").val("");
+    $("#txtItemName").val("");
+    $("#txtItemQTYOnHand").val("");
+    $("#txtItemPrice").val("");
+    $("#txtItemCode").focus();
+}
+
+
+/*$("#popItemBtnAdd").click(function () {
+
+   /!* var cusOb={
         "code":$("#txtPopItemCode").val(),
         "name":$("#txtPopItemName").val(),
         "price":$("#txtPopItemPrice").val(),
         "qtyOnHand":$("#txtPopItemQuntity").val(),
-    }
+    }*!/
+
+    let serialize = $("#itemForm").serialize();
 
     $.ajax({
-        url: "item",
+        url: baseUrl,
         method: "POST",
-        contentType:"application/json",
-        data: JSON.stringify(cusOb),
-        success:function (res){
-            if (res.status==200){
-                alert(res.message);
-                clearItemPopData();
-                genarateItemCode();
+        data: serialize,// if we send data with the request
+        success: function (res) {
+            if (res.code == 200) {
+                alert("Successfully Item Registered");
+               /!* loadAllCustomers();
+                clearPopData();*!/
                 loadAllItem();
-            }else {
-                alert(res.data);
             }
+            /!*else {
+                alert(res.message);
+            }*!/
         },
-        error: function (ob, textStatus, error) {
-            alert(textStatus);
+        error: function (ob) {
+            alert(ob.responseJSON.message);
         }
     });
 });
@@ -51,7 +220,7 @@ function loadAllItem() {
     $.ajax({
         url: "item?option=GETAll",
         method: "GET",
-        /* dataType :"json",*/
+        /!* dataType :"json",*!/
         success: function (resp) {
             for (const item of resp.data) {
                 var row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.price}</td><td>${item.qtyOnHand}</td></tr>`;
@@ -144,7 +313,7 @@ $("#btnItemUpdate").click(function (){
             console.log(ob);
         }
     });
-});
+});*/
 
 var regExItemCode = /^(I00-)[0-9]{3,4}$/;
 var regExItemName = /^[A-z ]{3,20}$/;
