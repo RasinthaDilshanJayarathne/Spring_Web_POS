@@ -4,8 +4,8 @@ import lk.ijse.spring.dto.CustomerDTO;
 import lk.ijse.spring.dto.ItemDTO;
 import lk.ijse.spring.entity.Customer;
 import lk.ijse.spring.entity.Item;
-import lk.ijse.spring.repo.CustomerRepo;
 import lk.ijse.spring.repo.ItemRepo;
+import lk.ijse.spring.service.CustomerService;
 import lk.ijse.spring.service.ItemService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -25,6 +25,8 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private ModelMapper modelMapper;
 
+
+    @Override
     public void saveItem(ItemDTO dto) {
         if (!itemRepo.existsById(dto.getCode())) {
             Item map = modelMapper.map(dto, Item.class);
@@ -34,14 +36,16 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @Override
     public void deleteItem(String id) {
         if (itemRepo.existsById(id)){
             itemRepo.deleteById(id);
         }else{
-            throw new RuntimeException("Please check the Item ID.. No Such Item..!");
+            throw new RuntimeException("Please check the Item Code.. No Such Item..!");
         }
     }
 
+    @Override
     public void updateItem(ItemDTO dto) {
         if (itemRepo.existsById(dto.getCode())){
             Item map = modelMapper.map(dto, Item.class);
@@ -51,6 +55,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @Override
     public ItemDTO searchItem(String id) {
         if (itemRepo.existsById(id)){
             Item item = itemRepo.findById(id).get();
@@ -60,6 +65,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @Override
     public List<ItemDTO> getAllItem() {
         return modelMapper.map(itemRepo.findAll(), new TypeToken<List<ItemDTO>>() {
         }.getType());

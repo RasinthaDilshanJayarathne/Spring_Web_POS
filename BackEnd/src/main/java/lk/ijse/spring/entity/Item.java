@@ -7,8 +7,7 @@ import javax.persistence.Id;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 @ToString
 @Entity
 public class Item {

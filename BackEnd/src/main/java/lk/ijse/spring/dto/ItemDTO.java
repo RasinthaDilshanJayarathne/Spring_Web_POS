@@ -4,8 +4,7 @@ import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 @ToString
 public class ItemDTO {
     private String code;
