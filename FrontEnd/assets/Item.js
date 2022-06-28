@@ -2,7 +2,7 @@ $("#item").click(function (){
     loadAllItems();
 })
 
-var baseUrl="http://localhost:8080/BackEnd_war/item/"
+var baseUrlItem="http://localhost:8080/BackEnd_war/item/"
 
 
 function genarateItemCode(){
@@ -41,13 +41,13 @@ $("#btnItemUpdate").click(function () {
 });
 
 //Bind click events to the table rows
-function bindClickEvents() {
+function bindClickEvent() {
     $("#itemTable>tr").click(function () {
         //Get values from the selected row
         let code = $(this).children().eq(0).text();
         let name = $(this).children().eq(1).text();
-        let qTYOnHand = $(this).children().eq(2).text();
-        let itemPrice = $(this).children().eq(3).text();
+        let itemPrice = $(this).children().eq(2).text();
+        let qTYOnHand = $(this).children().eq(3).text();
 
         //Set values to the text-fields
         $("#txtItemCode").val(code);
@@ -61,7 +61,7 @@ function bindClickEvents() {
 function saveItem() {
     var data = $("#itemForm").serialize(); // return query string of form with name:type-value
     $.ajax({
-        url: baseUrl,
+        url: baseUrlItem,
         method: "POST",
         data: data,// if we send data with the request
         success: function (res) {
@@ -84,16 +84,15 @@ function saveItem() {
 function loadAllItems() {
     $("#itemTable").empty();
     $.ajax({
-        url: baseUrl,
+        url: baseUrlItem,
         method: "GET",
         // dataType:"json", // please convert the response into JSON
         success: function (resp) {
-
             for (const item of resp.data) {
                 var row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.price}</td><td>${item.qtyOnHand}</td></tr>`;
-                $("#customerTable").append(row);
+                $("#itemTable").append(row);
             }
-            bindClickEvents();
+            bindClickEvent();
             clearForm();
         },
         error: function (ob) {
@@ -107,21 +106,21 @@ function loadAllItems() {
 function updateItem() {
     //creating a js object with relevant data which you wanna send to the server
     var itmOb = {
-        id: $("#txtItemCode").val(),
+        code: $("#txtItemCode").val(),
         name: $("#txtItemName").val(),
-        address: $("#txtItemQTYOnHand").val(),
-        contact: $("#txtItemPrice").val(),
+        qtyOnHand: $("#txtItemQTYOnHand").val(),
+        price: $("#txtItemPrice").val(),
     }
 
     $.ajax({
-        url: baseUrl,
+        url: baseUrlItem,
         method: "PUT",
         contentType: "application/json", //You should state request's content type using MIME types
         data: JSON.stringify(itmOb), // format js object to valid json string
         success: function (res) {
             if (res.code == 200) { // process is  ok
                 alert("Successfully Updated");
-                loadAllCustomers();
+                loadAllItems();
                 clearForm();
             }
         },
@@ -138,13 +137,12 @@ function deleteItem() {
 
     // initiate the request
     $.ajax({
-        url: baseUrl + "?code=" + itemCode,// viya query string
+        url: baseUrlItem + "?code=" + itemCode,// viya query string
         method: "DELETE",
-        //data:data,// application/x-www-form-urlencoded
         success: function (res) {
             if (res.code == 200) {
-                alert("Customer Successfully Deleted");
-                loadAllCustomers();
+                alert("Item Successfully Deleted");
+                loadAllItems();
                 clearForm();
             }
         },
@@ -156,19 +154,18 @@ function deleteItem() {
 
 //Search Item
 function searchItem() {
-    var search = $("#searchBar3").val();
+    var search = $("#itemSearchBar").val();
     $("#itemTable").empty();
 
     $.ajax({
-        url:baseUrl + "/" + search,
+        url:baseUrlItem + "/" + search,
         method:"GET",
         success: function (resp) {
             var data=resp.data;
-            console.log(data.id);
             var row = `<tr><td>${data.code}</td><td>${data.name}</td><td>${data.price}</td><td>${data.qtyOnHand}</td></tr>`;
             $("#customerTable").append(row);
 
-            bindClickEvents();
+            bindClickEvent();
         }
     })
 }
@@ -181,139 +178,6 @@ function clearForm() {
     $("#txtItemPrice").val("");
     $("#txtItemCode").focus();
 }
-
-
-/*$("#popItemBtnAdd").click(function () {
-
-   /!* var cusOb={
-        "code":$("#txtPopItemCode").val(),
-        "name":$("#txtPopItemName").val(),
-        "price":$("#txtPopItemPrice").val(),
-        "qtyOnHand":$("#txtPopItemQuntity").val(),
-    }*!/
-
-    let serialize = $("#itemForm").serialize();
-
-    $.ajax({
-        url: baseUrl,
-        method: "POST",
-        data: serialize,// if we send data with the request
-        success: function (res) {
-            if (res.code == 200) {
-                alert("Successfully Item Registered");
-               /!* loadAllCustomers();
-                clearPopData();*!/
-                loadAllItem();
-            }
-            /!*else {
-                alert(res.message);
-            }*!/
-        },
-        error: function (ob) {
-            alert(ob.responseJSON.message);
-        }
-    });
-});
-
-function loadAllItem() {
-    $("#itemTable").empty();
-    $.ajax({
-        url: "item?option=GETAll",
-        method: "GET",
-        /!* dataType :"json",*!/
-        success: function (resp) {
-            for (const item of resp.data) {
-                var row = `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.price}</td><td>${item.qtyOnHand}</td></tr>`;
-                $("#itemTable").append(row);
-            }
-            bindClickEvents();
-        }
-    });
-}
-
-$("#btnItemDelete").click(function (){
-    let itemCode = $("#txtItemCode").val();
-    $.ajax({
-        url:"item?code="+itemCode,
-        method:"DELETE",
-        //data :data,
-        success: function (res) {
-            console.log(res);
-            if (res.status == 200) {
-                alert(res.message);
-                clearAllItem();
-                loadAllItem();
-            } else if (res.status == 400) {
-                alert(res.data);
-            } else {
-                alert(res.data);
-            }
-        },
-        error: function (ob, status, t) {
-            console.log(ob);
-            console.log(status);
-            console.log(t);
-        }
-    })
-});
-
-$("#btnItemSearch").click(function (){
-    var search = $("#ItemPpoSearchBar").val();
-    $("#itemTable").empty();
-
-    $.ajax({
-        url:"item?option=SEARCH&code=" + search,
-        method:"GET",
-        success: function (resp) {
-                var row = `<tr><td>${resp.code}</td><td>${resp.name}</td><td>${resp.price}</td><td>${resp.qtyOnHand}</td></tr>`;
-                $("#itemTable").append(row);
-            bindClickEvents();
-        }
-    })
-});
-
-function bindClickEvents(){
-    $("#itemTable>tr").click(function (){
-        let code=$(this).children().eq(0).text();
-        let name=$(this).children().eq(1).text();
-        let price=$(this).children().eq(2).text();
-        let qtyOnHand=$(this).children().eq(3).text();
-
-        $("#txtItemCode").val(code);
-        $("#txtItemName").val(name);
-        $("#txtItemPrice").val(price);
-        $("#txtItemQTYOnHand").val(qtyOnHand);
-    });
-}
-
-$("#btnItemUpdate").click(function (){
-    var itmOb = {
-        code: $("#txtItemCode").val(),
-        name: $("#txtItemName").val(),
-        price: $("#txtItemPrice").val(),
-        qtyOnHand: $("#txtItemQTYOnHand").val(),
-    }
-
-    $.ajax({
-        url: "item",
-        method: "PUT",
-        contentType: "application/json",
-        data: JSON.stringify(itmOb),
-        success: function (res) {
-            if (res.status == 200) {
-                alert(res.message);
-                loadAllItem();
-            } else if (res.status == 400) {
-                alert(res.message);
-            } else {
-                alert(res.data);
-            }
-        },
-        error: function (ob, errorStus) {
-            console.log(ob);
-        }
-    });
-});*/
 
 var regExItemCode = /^(I00-)[0-9]{3,4}$/;
 var regExItemName = /^[A-z ]{3,20}$/;

@@ -13,7 +13,7 @@ import javax.persistence.Id;
 public class Item {
     @Id
     private String code;
-    private String description;
+    private String name;
     private int qtyOnHand;
-    private double unitPrice;
+    private double price;
 }
