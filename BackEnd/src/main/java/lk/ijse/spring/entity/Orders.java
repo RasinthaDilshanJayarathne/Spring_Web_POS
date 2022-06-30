@@ -1,6 +1,5 @@
 package lk.ijse.spring.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,27 +7,26 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
 @Entity
+@ToString
 public class Orders {
     @Id
-    private String orderId;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate orderDate;
-    private int total;
-    private int subTotal;
+    private String oid;
+    private LocalDate date;
 
-    @JoinColumn(name = "custId",referencedColumnName = "id",nullable = false)
-
+    //Out=verse
     @ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.DETACH})
+    @JoinColumn(name = "customerID",referencedColumnName = "id",nullable = false)
     private Customer customer;
 
-    @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderDetails> orderDetails = new ArrayList<>();
+    //Inverse
+    @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
+    private List<OrderDetails> orderDetails;
+
 }

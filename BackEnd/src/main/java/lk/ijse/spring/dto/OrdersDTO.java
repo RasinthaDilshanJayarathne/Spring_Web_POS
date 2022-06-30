@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,6 +17,8 @@ public class OrdersDTO {
     private String orderId;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate orderDate;
-    private int total;
-    private int subTotal;
+    private CustomerDTO customer;
+    List<OrderDetailsDTO> orderDetails;
+
+
 }

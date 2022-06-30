@@ -10,22 +10,24 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ToString
 @Entity
-@IdClass(OrderItemPK.class)
+@ToString
+@IdClass(OrderItem_PK.class)
 public class OrderDetails {
     @Id
-    private String orderID;
+    private String oid;
     @Id
     private String itemCode;
     private int qty;
-    private int price;
-    private int total;
+    private double unitPrice;
 
     @ManyToOne
-    @JoinColumn(name = "orderID",referencedColumnName = "orderId",insertable = false,updatable = false)
+    @JoinColumn(name = "oid",referencedColumnName = "oid",insertable = false,updatable = false)
     private Orders orders;
+
     @ManyToOne
-    @JoinColumn(name = "itemCode",referencedColumnName = "itemCode",insertable = false,updatable = false)
+    @JoinColumn(name = "itemCode",referencedColumnName = "code",insertable = false,updatable = false)
     private Item items;
+
+
 }
