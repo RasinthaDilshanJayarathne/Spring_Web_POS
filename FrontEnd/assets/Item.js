@@ -99,7 +99,6 @@ function loadAllItems() {
             alert(ob.responseJSON.message);
         }
     });
-
 }
 
 //Update Item
