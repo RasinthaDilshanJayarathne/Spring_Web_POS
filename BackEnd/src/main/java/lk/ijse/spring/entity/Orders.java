@@ -1,5 +1,6 @@
 package lk.ijse.spring.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,15 +19,24 @@ import java.util.List;
 public class Orders {
     @Id
     private String oid;
+    private String custId;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+    private int total;
+    private int subTotal;
 
-    //Out=verse
-    @ManyToOne(cascade = {CascadeType.REFRESH,CascadeType.DETACH})
-    @JoinColumn(name = "customerID",referencedColumnName = "id",nullable = false)
+    @ManyToOne
     private Customer customer;
 
-    //Inverse
     @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;
 
+    public Orders(String oid, String customerId, LocalDate orderDate, int total, int subTotal, Customer customer) {
+        this.oid=oid;
+        this.custId=customerId;
+        this.date=orderDate;
+        this.total=total;
+        this.subTotal=subTotal;
+        this.customer=customer;
+    }
 }

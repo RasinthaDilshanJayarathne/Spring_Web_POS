@@ -6,12 +6,15 @@ $("#placeOrder").click(function () {
 
 generateOrderID();
 
+var baseUrlOrder = "http://localhost:8080/BackEnd_war/orders/"
+
+
 function loadCustomerComboData() {
     $("#custChombo").empty();
     $("#custChombo").append($("<option></option>").attr("value", 0).text("Select Ids"));
     var count = 1;
     $.ajax({
-        url: "customer?option=GETAll",
+        url: "http://localhost:8080/BackEnd_war/customer/",
         method: "GET",
         success: function (res) {
             for (let customer of res.data) {
@@ -32,7 +35,7 @@ $("#custChombo").click(function () {
     var name = $("#orderCustName").val();
 
     $.ajax({
-        url: "customer?option=GETAll",
+        url: "http://localhost:8080/BackEnd_war/customer/",
         method: "GET",
         success: function (res) {
             for (const customer of res.data) {
@@ -56,7 +59,7 @@ function loadItemComboData() {
     $("#itemChombo").append($("<option></option>").attr("value", 0).text("Select Code"));
     var count = 1;
     $.ajax({
-        url: "item?option=GETAll",
+        url: "http://localhost:8080/BackEnd_war/item/",
         method: "GET",
         success: function (res) {
             for (let item of res.data) {
@@ -77,7 +80,7 @@ $("#itemChombo").click(function () {
     var qtyOnHand = $("#orderQtyOnHand").val();
 
     $.ajax({
-        url: "item?option=GETAll",
+        url: "http://localhost:8080/BackEnd_war/item/",
         method: "GET",
         success: function (res) {
             for (const item of res.data) {
@@ -99,20 +102,22 @@ $("#itemChombo").click(function () {
 function generateOrderID() {
     $("#orderId").val("O00-0001");
     $.ajax({
-        url: "placeOrder?option=GETID",
+        url: baseUrlOrder,
         method: "GET",
         success: function (resp) {
-            let orderId = resp.orderID;
-            let tempId = parseInt(orderId.split("-")[1]);
-            tempId = tempId + 1;
-            if (tempId <= 9) {
-                $("#orderId").val("O00-000" + tempId);
-            } else if (tempId <= 99) {
-                $("#orderId").val("O00-00" + tempId);
-            } else if (tempId <= 999) {
-                $("#orderId").val("O00-0" + tempId);
-            } else {
-                $("#orderId").val("O00-" + tempId);
+            for (const orders of resp.data) {
+                let orderId = orders.orderId;
+                let tempId = parseInt(orderId.split("-")[1]);
+                tempId = tempId + 1;
+                if (tempId <= 9) {
+                    $("#orderId").val("O00-000" + tempId);
+                } else if (tempId <= 99) {
+                    $("#orderId").val("O00-00" + tempId);
+                } else if (tempId <= 999) {
+                    $("#orderId").val("O00-0" + tempId);
+                } else {
+                    $("#orderId").val("O00-" + tempId);
+                }
             }
         },
         error: function (ob, statusText, error) {
@@ -127,12 +132,13 @@ $("#btnPurchase").click(function () {
 
     for (let i = 0; i < $("#orderTable tr").length; i++) {
         var detailOb = {
-            orderId: $("#orderId").val(),
-            itemCode: $("#orderTable tr").children(':nth-child(1)')[i].innerText,
-            qty: $("#orderTable tr").children(':nth-child(5)')[i].innerText,
+            oid: $("#orderId").val(),
+            code: $("#orderTable tr").children(':nth-child(1)')[i].innerText,
+            orderQty: $("#orderTable tr").children(':nth-child(5)')[i].innerText,
             price: $("#orderTable tr").children(':nth-child(3)')[i].innerText,
             total: $("#orderTable tr").children(':nth-child(6)')[i].innerText,
         }
+        console.log(detailOb);
 
         orderDetails.push(detailOb);
     }
@@ -144,21 +150,22 @@ $("#btnPurchase").click(function () {
     var subTotal = $("#subToal").val();
 
     var orderOb = {
-        "orderId": orderId,
-        "customerId": customerId,
-        "date": date,
-        "total": total,
-        "subTotal": subTotal,
-        "detail": orderDetails
+        oid: orderId,
+        custId: customerId,
+        date: date,
+        total: total,
+        subTotal: subTotal,
+        orderDetails: orderDetails
     }
 
     console.log(orderOb)
     console.log(orderDetails)
 
     $.ajax({
-        url: "placeOrder",
+        url: baseUrlOrder,
         method: "POST",
         contentType: "application/json",
+        dataType:"json",
         data: JSON.stringify(orderOb),
         success: function (res) {
             if (res.status == 200) {
@@ -175,19 +182,19 @@ $("#btnPurchase").click(function () {
 
 });
 
-$("#btnOrderDetail").click(function (){
+$("#btnOrderDetail").click(function () {
     loadAllOrders();
 });
 
-function loadAllOrders(){
+function loadAllOrders() {
     $("#orderDetailTable").empty();
     $.ajax({
-        url: "placeOrder?option=GETALL",
+        url: baseUrlOrder,
         method: "GET",
         success: function (resp) {
             for (const orders of resp.data) {
 
-                let row = `<tr><td>${orders.orderID}</td><td>${orders.cusId}</td><td>${orders.orderDate}</td><td>
+                let row = `<tr><td>${orders.orderId}</td><td>${orders.custId}</td><td>${orders.date}</td><td>
                 ${orders.total}</td><td>${orders.subTotal}</td></tr>`;
                 $("#orderDetailTable").append(row);
             }
@@ -289,8 +296,6 @@ $("#addToCart").click(function () {
 
     });
 });
-
-
 
 
 var tot = 0;

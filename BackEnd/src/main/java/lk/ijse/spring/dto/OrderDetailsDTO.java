@@ -13,5 +13,7 @@ public class OrderDetailsDTO {
     private String oid;
     private String itemCode;
     private int qty;
-    private double unitPrice;
+    private int orderQty;
+    private int price;
+    private int total;
 }

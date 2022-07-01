@@ -1,6 +1,7 @@
 package lk.ijse.spring.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lk.ijse.spring.entity.OrderDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,15 @@ import java.util.List;
 @Data
 @ToString
 public class OrdersDTO {
-    private String orderId;
+    private String oid;
+    private String customerId;
+    private String itemCode;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate orderDate;
-    private CustomerDTO customer;
-    List<OrderDetailsDTO> orderDetails;
+    private int total;
+    private int subTotal;
+
+    List<OrderDetailsDTO>orderDetails;
 
 
 }
